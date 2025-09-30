@@ -1,0 +1,154 @@
+name: Build and Publish
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+
+permissions:
+  contents: write
+
+jobs:
+  # In order to build general manylinux wheels that support older Linux
+  # distributions, we'll need to use Docker. 
+  build-manylinux:
+    runs-on: ubuntu-latest
+    container:
+      image: quay.io/pypa/manylinux_2_28_x86_64
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
+    steps:
+      - name: checkout repository
+        uses: actions/checkout@v4
+            
+      - name: build in docker
+        uses: ./.github/actions/build-manylinux
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: upload linux wheels
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheels-manylinux2014-py${{ matrix.python-version }}-x64
+          path: wheelhouse/*.whl
+
+  # For all other operating systems we support (Windows, macOS Intel (x64)
+  # and macOS Apple Silicon (arm64)) we can use the default machines GitHub 
+  # Actions provides
+  build-other:
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - {os: windows-latest, arch: "x64"}
+          - {os: macos-latest, arch: "x64"}
+          - {os: macos-latest, arch: "arm64"}
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
+    
+    steps:
+      - name: checkout orion repository
+        uses: actions/checkout@v4
+
+      # Conda is necessary here else we can't build MacOS arm64 on 
+      # Python versions < 3.11.
+      - name: setup python
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          miniconda-version: "latest"
+          python-version: ${{ matrix.python-version }}
+          architecture: ${{ matrix.config.arch }}
+          auto-activate-base: true
+      
+      - name: set up golang
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21.x'
+      
+      - name: build wheels
+        shell: bash -l {0}
+        run: |
+          pip install poetry
+          poetry build
+
+          echo "Contents of the wheel file:"
+          unzip -l dist/*.whl
+
+      - name: upload wheels
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheels-${{ matrix.config.os }}-py${{ matrix.python-version }}-${{ matrix.config.arch }}
+          path: dist/*.whl
+
+  # Now we can test the wheels we just created. We'll do this by downloading
+  # all wheels that were added as artifacts in the previous build jobs.
+  test:
+    needs: [build-manylinux, build-other]
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - {os: ubuntu-latest, arch: "x64"}
+          - {os: windows-latest, arch: "x64"}
+          - {os: macos-latest, arch: "x64"}
+          - {os: macos-latest, arch: "arm64"}
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
+    
+    steps:
+      - name: checkout orion repository
+        uses: actions/checkout@v4
+      
+      - name: set up python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: download artifact wheels
+        uses: actions/download-artifact@v4
+        with:
+          pattern: wheels-*
+          path: dist/
+          merge-multiple: true
+            
+      - name: install packages
+        shell: bash
+        run: |
+          pip install --find-links=dist orion-fhe pytest pytest-cov
+
+      - name: run pytest
+        shell: bash 
+        run: |
+          # Create temp directory
+          cd $RUNNER_TEMP
+          echo "Testing from directory: $RUNNER_TEMP"
+          python -m pytest $GITHUB_WORKSPACE/tests/
+
+  publish:
+    needs: [test]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: checkout repository
+        uses: actions/checkout@v4
+
+      - name: set up python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      
+      - name: download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: wheels-*
+          path: dist/
+          merge-multiple: true
+      
+      - name: publish to pypi
+        run: |
+          pip install poetry
+          poetry config pypi-token.pypi ${{ secrets.PYPI_API_TOKEN }}
+          poetry publish --skip-existing
