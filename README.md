@@ -6,6 +6,17 @@ The trained model (`model/epoch_11_model_state_dict.pth`) is loaded, and inferen
 
 <img width="1017" height="402" alt="image" src="https://github.com/user-attachments/assets/e073a0fa-9771-41f2-b8f3-29fab501639a" />
 
+## 0. Dependencies
+
+This project was developed and tested with the specific library versions listed below. It is recommended to check your environment's versions to prevent compatibility issues.
+
+* **Conda**: 24.5.0
+
+* **Python**: 3.13.2
+
+* **PyTorch**: 2.6.0+cu124
+
+* **Torchvision**: A version compatible with PyTorch (e.g., 0.21.0+cu124)
 
 ## 1. Data Description
 
