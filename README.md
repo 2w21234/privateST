@@ -4,7 +4,8 @@ This repository provides the code to perform privacy-preserving inference on a p
 
 The trained model (`model/epoch_11_model_state_dict.pth`) is loaded, and inference is run on encrypted data using the **Orion** framework.
 
-![Workflow of privateST](https://storage.googleapis.com/kms-space/privateST/figure1.png)
+<img width="1017" height="402" alt="image" src="https://github.com/user-attachments/assets/e073a0fa-9771-41f2-b8f3-29fab501639a" />
+
 
 ## 1. Data Description
 
@@ -73,7 +74,7 @@ To ensure compatibility with the Orion framework, the standard `BasicBlock` from
 
 ### Training a New ResNet Model
 
-If you want to train a new ResNet18 model from scratch that is compatible with the Orion workflow, you must slightly modify the `torchvision` library's source files.
+If you want to train a new ResNet18 model from scratch using the BrSTNet code to be compatible with the Orion workflow, you must first modify the torchvision library's source files as follows:
 
 1.  Locate the `resnet.py` file in your Conda environment. It is typically found at:
     `/home/[user name]/.conda/envs/orion/lib/python3.13/site-packages/torchvision/models/resnet.py`
