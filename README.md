@@ -65,11 +65,22 @@ Follow these steps to set up the environment and run the inference script.
     ```
 
 **Running Inference:**
-1.  Run the test script to perform inference on the encrypted test data:
-    ```bash
-    python test_privateST.py
+Running Inference with Options
+You can control the inference process using command-line arguments. This is particularly useful for quick verification or full encrypted evaluation
+# Quick Verification (ResNet_Approx Only)
+The FHE (Homomorphic Encryption) inference is computationally intensive. If you only need to generate "Approx" results (Orion clear mode) for initial verification or comparison with standard PyTorch outputs, use the --approx_only flag.
     ```
-2.  The `test_privateST.sh` file is an example script used for running the job on a **SLURM** cluster.
+      # Run ONLY the Orion clear (approx) mode and skip FHE inference
+      python3 test_privateST.py --approx_only
+    ```
+--approx_only: The script will exit after saving the .npy files for the Orion clear mode, skipping the time-consuming FHE compilation and encrypted inference.
+
+# Full Inference (Approx + FHE)
+To execute the entire pipeline, including the encrypted inference, run the script without any additional flags:
+   ```
+   # Run the full pipeline (Approx results + FHE inference)
+   python3 test_privateST.py
+   ```
 
 ---
 
