@@ -91,7 +91,7 @@ Orion (FHE version): The final inference results on the actually encrypted data.
 To ensure compatibility with the Orion framework, the standard `BasicBlock` from PyTorch's ResNet model has been redefined within the main script (`test_privateST.py`) as `CustomBasicBlock`. This custom implementation uses the same operations but conforms to the structure expected by Orion.
 
 ### Training a New ResNet Model
-To ensure your model is fully compatible with the Orion (FHE) workflow, you must initialize it using the custom_resnet18 function defined in test_privateST.py. This ensures the architecture—specifically the pooling layers and residual blocks—perfectly matches the structure required for encrypted inference.
+To ensure your model is fully compatible with the Orion (FHE) workflow, you must initialize it using the custom_resnet18 function defined in ```test_privateST.py```. This ensures the architecture—specifically the pooling layers and residual blocks—perfectly matches the structure required for encrypted inference.
 
 Using the Custom Initialization Function
 Instead of using the standard torchvision initialization, use the provided function to build the model. This correctly configures the internal naming and operations (such as Average Pooling) necessary for the privateST pipeline.
