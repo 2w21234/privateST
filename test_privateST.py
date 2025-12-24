@@ -1,13 +1,8 @@
+# -*- coding: utf-8 -*-
+
 import gc
 import os
 import sys
-#sys.path.insert(0, './orion')
-#sys.path.append('.')
-# 스크립트 위치 기준
-#script_dir = os.path.dirname(os.path.abspath(__file__))  # /home/2w21234/privateST
-#orion_path = os.path.join(script_dir, 'orion')           # /home/2w21234/privateST/orion
-#sys.path.insert(0, orion_path)
-
 import time
 import math
 import psutil
@@ -39,7 +34,7 @@ import os, torch, numpy as np, torchvision
 from PIL import Image
 from tqdm import tqdm
 import random
-from torchvision.models.resnet import ResNet
+from torchvision.models.resnet import ResNet, BasicBlock, Bottleneck
 import torchvision
 import torch
 import utils
@@ -54,7 +49,7 @@ seed = 42
 random.seed(seed)
 np.random.seed(seed)
 torch.manual_seed(seed)
-torch.use_deterministic_algorithms(True) 
+torch.use_deterministic_algorithms(True)
 torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
 
@@ -68,13 +63,13 @@ test_img_root      = "./test/images/64"
 gene_filter        = 250
 orion_batch_size   = 1
 resol              = 64
-device             = torch.device("cpu")  
+device             = torch.device("cpu")
 precomputed_root   = "./precomputed_stats"
 save_dir = "./results"
 
 
 patients_df = pd.read_csv(test_patients_csv, header=None)
-test_patients = patients_df.iloc[:, 0].tolist()  
+test_patients = patients_df.iloc[:, 0].tolist()
 img_stats_path = precomputed_root+"/image_gene_stats.csv"
 
 stats_df = pd.read_csv(img_stats_path)
@@ -99,7 +94,7 @@ class CustomBasicBlock(nn.Module):
         self.conv2 = nn.Conv2d(planes, planes, 3, 1, 1, bias=False)
         self.bn2 = norm_layer(planes)
         self.identity = nn.Identity()
-        self.act2 = nn.ReLU(inplace=True) 
+        self.act2 = nn.ReLU(inplace=True)
 
         if downsample is None and (stride != 1 or inplanes != planes):
             self.downsample = nn.Sequential(
@@ -131,9 +126,10 @@ class CustomBasicBlock(nn.Module):
         return out
 
 
-
-def custom_resnet18(num_classes=10):
+def custom_resnet18(num_classes=250):
     model = ResNet(block=CustomBasicBlock, layers=[2, 2, 2, 2], num_classes=num_classes)
+    model.maxpool = nn.AvgPool2d(kernel_size=3, stride=2, padding=1)
+    model.pool = model.maxpool
     return model
 
 # ───── model loading ─────
@@ -141,9 +137,6 @@ model = custom_resnet18(num_classes=gene_filter)
 model.load_state_dict(torch.load(model_ckpt, map_location=device))
 model.to(device)
 model.eval()
-
-
-
 
 
 state_dict = torch.load(model_ckpt, map_location="cpu")
@@ -154,7 +147,7 @@ state_dict = {k.replace("module.", ""): v for k, v in state_dict.items()}
 def convert_pytorch_keys_to_orion(state_dict):
     new_state_dict = {}
     for k, v in state_dict.items():
-        k = k.replace("downsample", "shortcut") 
+        k = k.replace("downsample", "shortcut")
         if k.startswith("layer"):
             parts = k.split(".")
             layer_num = int(parts[0][5:])
@@ -168,7 +161,6 @@ def convert_pytorch_keys_to_orion(state_dict):
             new_state_dict[k] = v
     return new_state_dict
 
-#print(state_dict)
 orion_state = convert_pytorch_keys_to_orion(state_dict)
 he_model = ResNet18(dataset='brstnet')
 he_model.load_state_dict(orion_state, strict=False)
@@ -191,8 +183,8 @@ class Spatial(torch.utils.data.Dataset):
                  normalization=None,
                  gene_info_root=None):
         self.dataset=glob.glob(os.path.join(count_root, "*", "*.npz"))
-                
-        
+
+
         if patient is not None:
             self.dataset = [d for d in self.dataset if ((d.split("/")[-2] in patient) or ((d.split("/")[-2], d.split("/")[-1].split("_")[0]) in patient))]
 
@@ -217,7 +209,7 @@ class Spatial(torch.utils.data.Dataset):
 
         gene_pkl_path = os.path.join(self.gene_info_root, "gene.pkl")
         mean_expression_path = os.path.join(self.gene_info_root, "mean_expression.npy")
-        
+
         print('gene_pkl_path : ',gene_pkl_path)
         print('mean_expression_path :',mean_expression_path)
         with open(gene_pkl_path, "rb") as f:
@@ -312,7 +304,7 @@ class Spatial_train(torch.utils.data.Dataset):
         self.mean_expression_path = os.path.join(self.gene_info_path, "mean_expression.npy")
         subtype_files = [os.path.join(self.count_root, "subtype.pkl")]
         self.subtype = {}
-        
+
         for file in subtype_files:
             try:
                 with open(file, "rb") as f:
@@ -321,7 +313,7 @@ class Spatial_train(torch.utils.data.Dataset):
                 print(f"⚠ Warning: {file} not found.")
 
         print(f"✅ Loaded {len(self.subtype)} subtype entries.")
-             
+
         print('gene_pkl_path : ',self.gene_pkl_path)
         print('mean_expression_path :',self.mean_expression_path)
 
@@ -336,7 +328,7 @@ class Spatial_train(torch.utils.data.Dataset):
         self.gene_keep = [n for (n, keep) in zip(self.gene_names, self.keep_bool) if keep]
 
         print(f"✅ Top250 ∩ Available genes ({len(self.gene_keep)}):", self.gene_keep)
-        
+
 
         if self.aux_ratio != 0:
             self.aux_nums = int((len(self.gene_names) - self.gene_filter) * self.aux_ratio)
@@ -366,7 +358,7 @@ class Spatial_train(torch.utils.data.Dataset):
 
         if self.transform is not None:
             X = self.transform(X)
-        # Bilinear interpolation 
+        # Bilinear interpolation
         if X.shape[1] != self.resolution:
             X = torchvision.transforms.Resize((self.resolution, self.resolution))(X)
             #print('Resized to 64x64')
@@ -379,10 +371,10 @@ class Spatial_train(torch.utils.data.Dataset):
         genes_bool = self.keep_bool
         genes = self.gene_keep
         ensg = self.ensg_keep
-        
+
         if self.normalization is not None:
             y = (y - self.normalization[0]) / self.normalization[1]
-                    
+
         if self.aux_ratio != 0:
             print('Aux ratio is not zero!')
             aux_count = count[self.aux_bool]
@@ -406,7 +398,7 @@ def get_spatial_patients(img_root):
     print(f"Scanning directory: {img_root}")
     patient_section = map(
         lambda x: (x.split("/")[-2], x.split("/")[-1].split("_")[0]),
-        glob.glob(f"{img_root}/*/")  
+        glob.glob(f"{img_root}/*/")
     )
     print(f"Patients found at: {img_root}/*/")
 
@@ -431,7 +423,7 @@ def seed_worker(worker_id):
     random.seed(worker_seed)
 
 g = torch.Generator()
-g.manual_seed(seed) 
+g.manual_seed(seed)
 
 
 train_transform = torchvision.transforms.Compose([
@@ -457,16 +449,16 @@ train_loader = torch.utils.data.DataLoader(train_dataset,
                                            batch_size=orion_batch_size,
                                            num_workers=2,
                                            shuffle=True,
-                                           worker_init_fn=seed_worker, 
+                                           worker_init_fn=seed_worker,
                                            generator=g)
 
 test_dataset = Spatial(
     patient=test_patients,#patient_list,
-    count_root=test_count_root, 
+    count_root=test_count_root,
     img_root=test_img_root,
     gene_filter=gene_filter,
     aux_ratio=0,
-    transform=test_transform, 
+    transform=test_transform,
     normalization=None,
     gene_info_root=precomputed_root
     )
@@ -477,7 +469,7 @@ test_loader = torch.utils.data.DataLoader(
     test_dataset,
     batch_size=orion_batch_size,
     num_workers=2,
-    shuffle=False  
+    shuffle=False
 )
 
 
@@ -532,18 +524,18 @@ he_model.eval()
 model.eval()
 
 for i, sample in enumerate(test_loader):
-    if len(sample) == 8:  
+    if len(sample) == 8:
         X, y, aux, coord, index, patient, section, pixel = sample
-    else:  
+    else:
         X, y, coord, index, patient, section, pixel = sample
 
-    sample_input = X  
+    sample_input = X
     pixel = pixel.squeeze().tolist()
     x, y_ = pixel
     section = section[0]
-    
-    filename_clear = f"{save_dir}/outputs_clear_{section}_{x:04d}_{y_:04d}.npy"
-    filename_pytorch   = f"{save_dir}/outputs_pytorch_{section}_{x:04d}_{y_:04d}.npy"
+
+    filename_clear = f"{save_dir}/ResNet_Approx_{section}_{x:04d}_{y_:04d}.npy"
+    #filename_pytorch   = f"{save_dir}/ResNet_Approx_pytorch_{section}_{x:04d}_{y_:04d}.npy"
     if os.path.exists(filename_clear):
         print(f"The file already exists : {filename_clear} → pass")
         continue
@@ -555,11 +547,11 @@ for i, sample in enumerate(test_loader):
     print(f"[CLEAR] Saved: {filename_clear}")
 
     # pytorch inference
-    model.eval()
-    with torch.no_grad(): 
-        out_pytorch = model(sample_input)
-    np.save(filename_pytorch, out_pytorch.detach().cpu().numpy())
-    print(f"[CLEAR] Saved: {filename_pytorch}")
+    #model.eval()
+    #with torch.no_grad():
+    #    out_pytorch = model(sample_input)
+    #np.save(filename_pytorch, out_pytorch.detach().cpu().numpy())
+    #print(f"[CLEAR] Saved: {filename_pytorch}")
 
 
 
@@ -573,36 +565,36 @@ print("===== 3) Orion (FHE) model compiling finished and fhe inference starts ==
 he_model.he()
 
 for i, sample in enumerate(test_loader):
-    if len(sample) == 8:  
+    if len(sample) == 8:
         X, y, aux, coord, index, patient, section, pixel = sample
-    else:  
+    else:
         X, y, coord, index, patient, section, pixel = sample
 
-    sample_input = X  
+    sample_input = X
     print('test set input size : ', sample_input.shape)
     pixel = pixel.squeeze().tolist()
     #print(pixel)
     x, y_ = pixel
     section = section[0]
-    filename_fhe   = f"{save_dir}/outputs_fhe_{section}_{x:04d}_{y_:04d}.npy" 
+    filename_fhe   = f"{save_dir}/privateST(ResNet_HE)_{section}_{x:04d}_{y_:04d}.npy"
     vec_ptxt = orion.encode(sample_input, input_level)
     vec_ctxt = orion.encrypt(vec_ptxt)
 
-    sample_start_time = time.perf_counter()    
+    sample_start_time = time.perf_counter()
     out_ctxt = he_model(vec_ctxt)
     sample_end_time = time.perf_counter()
     sample_duration = sample_end_time - sample_start_time
     sample_times.append(sample_duration)
-        
+
     out_fhe = out_ctxt.decrypt().decode()
     out_fhe = np.array(out_fhe)
     np.save(filename_fhe, out_fhe)
-    
+
     ## break
-    
-    # Memory clearance 
+
+    # Memory clearance
     del vec_ctxt, vec_ptxt, out_ctxt, out_fhe
-    gc.collect() 
+    gc.collect()
 
 he_model.eval()
 print("\n" + "="*50)
@@ -611,3 +603,4 @@ print("="*50)
 print(f"Number of samples : {len(sample_times)}")
 print('Inference times :', sample_times)
 print("="*50)
+~                  
