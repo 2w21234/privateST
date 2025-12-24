@@ -54,9 +54,6 @@ The `./precomputed_stats/` folder contains files generated from the full trainin
 
 Follow these steps to set up the environment and run the inference script.
 
-**System Requirements:**
-* A system with at least **512 GB of RAM** is recommended for stable operation.
-
 **Installation Steps:**
 1.  Create and activate the Conda environment using the provided file:
     ```bash
@@ -64,23 +61,31 @@ Follow these steps to set up the environment and run the inference script.
     conda activate privateST
     ```
 
-**Running Inference:**
+**Running Inference with Options:**
 Running Inference with Options
 You can control the inference process using command-line arguments. This is particularly useful for quick verification or full encrypted evaluation
-# Quick Verification (ResNet_Approx Only)
-The FHE (Homomorphic Encryption) inference is computationally intensive. If you only need to generate "Approx" results (Orion clear mode) for initial verification or comparison with standard PyTorch outputs, use the --approx_only flag.
-    ```
-      # Run ONLY the Orion clear (approx) mode and skip FHE inference
-      python3 test_privateST.py --approx_only
-    ```
---approx_only: The script will exit after saving the .npy files for the Orion clear mode, skipping the time-consuming FHE compilation and encrypted inference.
 
-# Full Inference (Approx + FHE)
-To execute the entire pipeline, including the encrypted inference, run the script without any additional flags:
-   ```
-   # Run the full pipeline (Approx results + FHE inference)
-   python3 test_privateST.py
-   ```
+
+###    ⚠️ System Requirements & Memory Warning
+The full **FHE (Homomorphic Encryption)** inference process is extremely memory-intensive.
+
+* **RAM Requirement**: **Minimum 512GB RAM** is required for full FHE inference.
+* **Important Warning**: If you run the script **without** the `--approx_only` flag on a system with less than 512GB of RAM, the process will fail with a `MemoryError` or system crash.
+  
+### Quick Verification (ResNet_Approx Only)
+If your system does not meet the 512GB RAM requirement, you **must** use the `--approx_only` flag to run only the ResNet_Approx mode.
+    ```
+      # Run ONLY the ResNet_Approx mode and skip FHE inference
+      python test_privateST.py --approx_only
+    ```
+--approx_only: The script will exit after saving the .npy files for the ResNet_Approx mode, skipping the time-consuming FHE compilation and encrypted inference.
+
+### Full Inference (Approx + FHE)
+    ```
+      # Run the full pipeline (ResNet_Approx + privateST(ResNet_HE) inference)
+      python test_privateST.py 
+    ```
+
 
 ---
 
