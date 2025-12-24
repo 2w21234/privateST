@@ -603,4 +603,3 @@ print("="*50)
 print(f"Number of samples : {len(sample_times)}")
 print('Inference times :', sample_times)
 print("="*50)
-~                  
