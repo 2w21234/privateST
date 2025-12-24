@@ -91,15 +91,23 @@ Orion (FHE version): The final inference results on the actually encrypted data.
 To ensure compatibility with the Orion framework, the standard `BasicBlock` from PyTorch's ResNet model has been redefined within the main script (`test_privateST.py`) as `CustomBasicBlock`. This custom implementation uses the same operations but conforms to the structure expected by Orion.
 
 ### Training a New ResNet Model
+To ensure your model is fully compatible with the Orion (FHE) workflow, you must initialize it using the custom_resnet18 function defined in test_privateST.py. This ensures the architecture—specifically the pooling layers and residual blocks—perfectly matches the structure required for encrypted inference.
 
-If you want to train a new ResNet18 model from scratch using the BrSTNet code to be compatible with the Orion workflow, you must first modify the torchvision library's source files as follows:
+Using the Custom Initialization Function
+Instead of using the standard torchvision initialization, use the provided function to build the model. This correctly configures the internal naming and operations (such as Average Pooling) necessary for the privateST pipeline.
+```
+# Import the custom initialization function from the project script
+from test_privateST import custom_resnet18
 
-1.  Locate the `resnet.py` file in your Conda environment. It is typically found at:
-    `/home/[user name]/.conda/envs/orion/lib/python3.13/site-packages/torchvision/models/resnet.py`
-2.  Replace that file with the `resnet.py` file provided in this repository.
-    * This modified file ensures that the saved model architecture after training perfectly matches the structure expected by the Orion inference code.
-  
-   
+# Initialize the model for your specific task (e.g., 250 gene prediction)
+model = custom_resnet18(num_classes=250)
+
+# The function automatically configures:
+# - AvgPool2d (mapped to self.pool) for HE efficiency
+# - CustomBasicBlock with F.interpolate logic for skip-connection stability
+```
+By following this approach, the saved checkpoints (.pth) will align with the Orion inference engine without the need for manual structural adjustments or weight remapping.
+
 ---
    
 ## 6. References
