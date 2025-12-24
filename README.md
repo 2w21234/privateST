@@ -11,15 +11,15 @@ The trained model (`model/epoch_11_model_state_dict.pth`) is loaded, and inferen
 This project was developed and tested with the specific library versions listed below. It is recommended to check your environment's versions to prevent compatibility issues.
 
 
-* **System**: Rocky Linux 9.4
+* **System**: Linux 9.4
 
 * **Conda**: 24.5.0
 
-* **Python**: 3.13.2
+* **Python**: 3.10.6
 
-* **PyTorch**: 2.6.0+cu124
+* **PyTorch**: 2.5.1
 
-* **Torchvision**: A version compatible with PyTorch (e.g., 0.21.0+cu124)
+* **Torchvision**: A version compatible with PyTorch
 
 
 ---
