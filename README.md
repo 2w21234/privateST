@@ -27,12 +27,11 @@ This project was developed and tested with the specific library versions listed 
 
 ## 1. Data Description
 
-The dataset used here is a scaled-down version of the public breast cancer spatial transcriptomics dataset, which originally contained data from 22 training patients and 1 test patient. 
+The dataset provided here is a scaled-down version of the breast cancer spatial transcriptomics dataset.Test Set: The test set is identical to the one used for evaluation in the associated research paper.Test Images: Located in ./test/images/64. The original 512x512x3 pixel images were resized to 64x64x3 using bilinear interpolation. The test set is identical to the one evaluated in the associated research paper and consists of 529 samples in total.
 
 * **Training Counts Root:** `./training/counts/512/Breast_cancer`
 * **Training Images Root:** `./training/images/512/Breast_cancer`
 * **Test Images Root:** `./test/images/64`
-    * This directory contains the input images for `privateST`. The original 512x512x3 pixel images have been resized to 64x64x3 using bilinear interpolation.
 * **Test Patients CSV:** `./test/test_patients.csv`
 * **Test Counts Root:** `./test/counts/512/Breast_cancer`
 * **Gene Filter:** Set to `250`, meaning the model predicts the expression for the top 250 genes with the highest mean expression.
