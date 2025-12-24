@@ -35,7 +35,8 @@ The dataset provided here is a scaled-down version of the breast cancer spatial 
 * **Test Patients CSV:** `./test/test_patients.csv`
 * **Test Counts Root:** `./test/counts/512/Breast_cancer`
 * **Gene Filter:** Set to `250`, meaning the model predicts the expression for the top 250 genes with the highest mean expression.
-
+* **Trained Model:** The model weights are provided in ```model/epoch_11_model_state_dict.pth```. This model was trained on the 22 training patients as described in the original paper.
+* 
 ---
 
 ## 2. Precomputed Statistics
