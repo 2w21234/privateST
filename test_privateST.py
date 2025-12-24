@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 import gc
 import os
 import sys
@@ -42,6 +41,10 @@ import torch.nn.functional as F
 import efficientnet_pytorch
 import pytorch_pretrained_vit
 import torch.nn as nn
+# ───── Argument Parsing ─────
+parser = argparse.ArgumentParser(description="privateST Inference Script")
+parser.add_argument("--approx_only", action="store_true", help="Run only Orion clear (approx) mode and skip FHE")
+args = parser.parse_args()
 
 
 
@@ -554,6 +557,15 @@ for i, sample in enumerate(test_loader):
     #print(f"[CLEAR] Saved: {filename_pytorch}")
 
 
+if args.approx_only:
+    print("\n" + "="*50)
+    print(" [INFO] --approx_only flag detected.")
+    print(" [INFO] ResNet_Approx inference finished.")
+    print(" [INFO] Skipping privateST (ResNet_HE) FHE inference and exiting.")
+    print("="*50)
+    sys.exit(0) #
+
+################################################################################################################################################
 
 sample_times = []
 total_start_time = time.perf_counter()
@@ -602,4 +614,4 @@ print("                 Inference times              ")
 print("="*50)
 print(f"Number of samples : {len(sample_times)}")
 print('Inference times :', sample_times)
-print("="*50)
+print("="*50)             
