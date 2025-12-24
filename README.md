@@ -27,7 +27,7 @@ This project was developed and tested with the specific library versions listed 
 
 ## 1. Data Description
 
-The dataset used here is a scaled-down version of the public breast cancer spatial transcriptomics dataset, which originally contained data from 22 training patients and 1 test patient. Due to GitHub size limitations, this repository includes only a subset of the data for one training and one test patient.
+The dataset used here is a scaled-down version of the public breast cancer spatial transcriptomics dataset, which originally contained data from 22 training patients and 1 test patient. 
 
 * **Training Counts Root:** `./training/counts/512/Breast_cancer`
 * **Training Images Root:** `./training/images/512/Breast_cancer`
