@@ -26,29 +26,14 @@ class BasicBlock(on.Module):
             self.shortcut = nn.Sequential(
                 on.Conv2d(Ci, self.expansion*Co, kernel_size=1, stride=stride, bias=False),
                 on.BatchNorm2d(self.expansion*Co))
+            
     def forward(self, x):
         out = self.act1(self.bn1(self.conv1(x)))
         out = self.bn2(self.conv2(out))
         out = self.add(out, self.shortcut(x))
         return self.act2(out)
     
-    """
-    def forward(self, x):
-        out = self.conv1(x)
-        #print('Block Conv1 :', out)
-        out = self.bn1(out)
-        #print('Block bn1 :', out)
-        out = self.act1(out)
-        #print('Block act1 :', out)
-        #print('✅ act1 출력 shape:', out.shape)
-        out = self.bn2(self.conv2(out))
-        #print('Block bn2 :', out)
-        out = self.add(out, self.shortcut(x))
-        #print('Added',out)
-        #print('Block act2 :',self.act2(out))
-        return self.act2(out)
-    """
-    
+
 
 class Bottleneck(on.Module):
     expansion = 4
