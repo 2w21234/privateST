@@ -56,7 +56,7 @@ Follow these steps to set up the environment and run the inference script.
 
 **Installation Steps:**
 1.  Create and activate the Conda environment using the provided file:
-    ```bash
+    ```
     conda env create -f environment.yml
     conda activate privateST
     ```
@@ -74,17 +74,19 @@ The full **FHE (Homomorphic Encryption)** inference process is extremely memory-
   
 ### Quick Verification (ResNet_Approx Only)
 If your system does not meet the 512GB RAM requirement, you **must** use the `--approx_only` flag to run only the ResNet_Approx mode.
-    ```
+
+    
       # Run ONLY the ResNet_Approx mode and skip FHE inference
       python test_privateST.py --approx_only
-    ```
+    
+    
 --approx_only: The script will exit after saving the .npy files for the ResNet_Approx mode, skipping the time-consuming FHE compilation and encrypted inference.
 
-### Full Inference (Approx + FHE)
-    ```
-      # Run the full pipeline (ResNet_Approx + privateST(ResNet_HE) inference)
+### Full Inference (ResNet_Approx + ResNet_HE(privateST))
+    
+      # Run the full pipeline
       python test_privateST.py 
-    ```
+    
 
 
 ---
@@ -107,8 +109,12 @@ Orion (FHE version): The final inference results on the actually encrypted data.
 To ensure compatibility with the Orion framework, the standard `BasicBlock` from PyTorch's ResNet model has been redefined within the main script (`test_privateST.py`) as `CustomBasicBlock`. This custom implementation uses the same operations but conforms to the structure expected by Orion.
 
 ### Training a New ResNet Model
-To ensure your model is fully compatible with the Orion (FHE) workflow, you must initialize it using the custom_resnet18 function defined in ```test_privateST.py```. This ensures the architecture—specifically the pooling layers and residual blocks—perfectly matches the structure required for encrypted inference.
+To ensure your model is fully compatible with the Orion (FHE) workflow, you must initialize it using the ```custom_resnet18``` function defined in ```test_privateST.py```. This ensures the architecture—specifically the pooling layers and residual blocks—perfectly matches the structure required for encrypted inference.
 
+#### **Why use the Custom Initialization Function?**
+Standard PyTorch/torchvision `ResNet18` models use **Max Pooling** by default. However, for efficient and accurate Homomorphic Encryption (HE) inference, the **privateST** pipeline requires **Average Pooling**. 
+
+Using the provided function instead of the standard torchvision initialization correctly configures the internal naming and operations necessary for the Orion workflow.
 Using the Custom Initialization Function
 Instead of using the standard torchvision initialization, use the provided function to build the model. This correctly configures the internal naming and operations (such as Average Pooling) necessary for the privateST pipeline.
 ```
