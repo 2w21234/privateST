@@ -87,25 +87,14 @@ class ResNet(on.Module):
         super().__init__()
         self.in_chans = num_chans[0]
         self.last_chans = num_chans[-1]
-
         self.conv1 = on.Conv2d(3, self.in_chans, **conv1_params, bias=False)
         self.bn1 = on.BatchNorm2d(self.in_chans)
         self.act = on.ReLU()
-         
-        #self.pool = nn.Identity() 
-        
-        self.First_Avgpool = on.AvgPool2d(kernel_size=3, stride=2, padding=1)
-        
-        
-        #if dataset == 'imagenet': # for imagenet we must also downsample
-        #    self.pool = on.AvgPool2d(kernel_size=3, stride=2, padding=1)
-        
-        
+        self.pool = on.AvgPool2d(kernel_size=3, stride=2, padding=1)
         self.layers = nn.ModuleList()
         for i in range(len(num_blocks)):
             stride = 1 if i == 0 else 2
             self.layers.append(self.layer(block, num_chans[i], num_blocks[i], stride))
-
         self.avgpool = on.AdaptiveAvgPool2d(output_size=(1,1)) 
         self.flatten = on.Flatten()
         self.linear  = on.Linear(self.last_chans * block.expansion, num_classes)
@@ -128,9 +117,8 @@ class ResNet(on.Module):
         out = self.act(out)
         #print("[relu] output:\n", out)
  
-        out = self.First_Avgpool(out)
-        #print("[First avg pool] output:\n", out)
-         
+        out = self.pool(out)
+        
         for idx, layer in enumerate(self.layers):
             out = layer(out)
             #print(f"[layer{idx+1}] output:\n", out)
