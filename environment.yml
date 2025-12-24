@@ -1,4 +1,4 @@
-name: orion
+name: privateST
 channels:
   - conda-forge
   - defaults
