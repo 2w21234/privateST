@@ -37,9 +37,9 @@ try:
         csv_data.append([i, ensg_id, pcc_val])
         print(f"{i+1:<5} | {ensg_id:<25} | {pcc_val:.6f}")
     avg_pcc = np.nanmean(gene_pccs)
-    print("-" * 85 + f"\n✅ Final Mean Gene-wise PCC: {avg_pcc:.6f}")
+    print("-" * 85 + f"\n Final Mean Gene-wise PCC: {avg_pcc:.6f}")
     # 5. Export to results/ directory
     with open(csv_out, "w", newline="") as f:
         writer = csv.writer(f); writer.writerow(["Index", "ENSG_ID", "PCC"]); writer.writerows(csv_data)
-    print(f"💾 Results successfully saved to: {csv_out}\n" + "="*85)
+    print(f" Results successfully saved to: {csv_out}\n" + "="*85)
 except Exception as e: print(f"\n❌ Error: {e}")
