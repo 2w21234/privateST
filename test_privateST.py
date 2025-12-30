@@ -132,7 +132,6 @@ class CustomBasicBlock(nn.Module):
 def custom_resnet18(num_classes=250):
     model = ResNet(block=CustomBasicBlock, layers=[2, 2, 2, 2], num_classes=num_classes)
     model.maxpool = nn.AvgPool2d(kernel_size=3, stride=2, padding=1)
-    model.pool = model.maxpool
     return model
 
 # ───── model loading ─────
