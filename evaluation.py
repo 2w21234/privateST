@@ -9,14 +9,15 @@ from scipy.stats import pearsonr
 # -----------------------------------------------------------------------------
 # 1. Configuration and Path Settings
 # -----------------------------------------------------------------------------
-# [Ground Truth] Use 'counts' data from this file as the ground truth
-TRUE_NPZ_PATH = '/home/2w21234/BrSTNet_64_1/result_resnet_maxpool_512_64_original/epoch_12.npz'
+# [Ground Truth] Use 'counts' (or 'true') data from this file as the ground truth
+# UPDATED: Now using the lightweight file with predictions removed
+TRUE_NPZ_PATH = 'scaled_y.npz'
 
 # [Matching CSV] Predictions must be sorted in the order of this file
-NAMES_CSV_PATH = '/home/2w21234/BrSTNet_64_1/result_resnet_maxpool_512_64_original/epoch_12_sample_names.csv'
+NAMES_CSV_PATH = 'sample_names.csv'
 
 # [Prediction Directory]
-PRED_DIR = "results/" 
+PRED_DIR = "results/"
 # (Add additional search paths like "privateST/results/" if necessary)
 
 # Path to save the result CSV
@@ -29,16 +30,16 @@ all_pred_files = glob.glob(os.path.join(PRED_DIR, "*.npy")) + \
 
 def find_file_by_sample(sid, file_list):
     """
-    Finds the actual file (e.g., outputs_clear_..._22_33.npy) 
+    Finds the actual file (e.g., outputs_clear_..._22_33.npy)
     based on the sample_name in the CSV (e.g., C1_22_33).
     """
     parts = sid.split('_')
     if len(parts) < 2: return None
-    
+
     # Extract coordinate part (last two numbers)
     # e.g., "Sample_22_33" -> "22", "33"
-    target_coords = parts[-2:] 
-    
+    target_coords = parts[-2:]
+
     for f in file_list:
         # Consider it a match if the filename contains all coordinate numbers
         if all(p in f for p in target_coords):
@@ -58,9 +59,11 @@ def main():
             raise FileNotFoundError(f"Ground Truth file not found: {TRUE_NPZ_PATH}")
 
         z = np.load(TRUE_NPZ_PATH, allow_pickle=True)
-        # Load user-specified True value ('counts')
+
+        # Load user-specified True value
+        # Note: scaled_y.npz preserves the original keys (likely 'counts' or 'true')
         y_true = z['counts'] if 'counts' in z else (z['true'] if 'true' in z else z['yt'])
-        
+
         print(f"✅ True Data Loaded: Shape {y_true.shape}")
         print(f"   -> Stats: Mean={y_true.mean():.4f}, Max={y_true.max():.4f}")
 
@@ -69,14 +72,14 @@ def main():
         # ---------------------------------------------------------------------
         if not os.path.exists(NAMES_CSV_PATH):
             raise FileNotFoundError(f"CSV file not found: {NAMES_CSV_PATH}")
-        
+
         # Load CSV
         sample_names = pd.read_csv(NAMES_CSV_PATH)["sample_name"].astype(str).tolist()
-        
+
         # Validate data counts
         n_csv = len(sample_names)
         n_npz = y_true.shape[0]
-        
+
         if n_csv != n_npz:
             print(f"⚠️ Warning: Count mismatch! CSV({n_csv}) vs NPZ({n_npz})")
             print("   -> Trimming to the smaller count.")
@@ -88,14 +91,14 @@ def main():
             print(f"✅ Sample count matched: {n_samples}")
 
         print(f"🔍 Matching .npy files for {n_samples} samples...")
-        
+
         pred_list = []
         missing_cnt = 0
-        
+
         for i, sn in enumerate(sample_names):
             # 1. Find prediction file matching the sample name
             f_path = find_file_by_sample(sn, all_pred_files)
-            
+
             # 2. Load and add to list
             if f_path:
                 pv = np.load(f_path).flatten()
@@ -108,7 +111,7 @@ def main():
 
         y_pred = np.array(pred_list)
         print(f"✅ Prediction Data Constructed: Shape {y_pred.shape}")
-        
+
         if missing_cnt > 0:
             print(f"   ⚠️ Total missing files: {missing_cnt}")
 
@@ -125,9 +128,9 @@ def main():
         # ---------------------------------------------------------------------
         gene_pccs = []
         for j in range(y_true.shape[1]):
-            t = y_true[:, j] 
+            t = y_true[:, j]
             p = y_pred[:, j]
-            
+
             # Check standard deviation (prevent constant values)
             if np.std(t) > 1e-9 and np.std(p) > 1e-9:
                 corr, _ = pearsonr(t, p)
@@ -147,7 +150,7 @@ def main():
 
         print("\n" + "="*85)
         print("Final Gene-wise Evaluation Summary")
-        print(f"(True: epoch_12.npz | Match: {os.path.basename(NAMES_CSV_PATH)})")
+        print(f"(True: scaled_y.npz | Match: {os.path.basename(NAMES_CSV_PATH)})")
         print("-" * 85)
         print(f"{'Metric':<45} | {'Value':<10}")
         print("-" * 85)
@@ -168,4 +171,4 @@ def main():
         print(f"Error: {e}")
 
 if __name__ == "__main__":
-    main()
+    main()                             
