@@ -34,7 +34,7 @@ The dataset provided here is a scaled-down version of the breast cancer spatial 
 * **Test Images Root:** `./test/images/64`
 * **Test Patients CSV:** `./test/test_patients.csv`
 * **Test Counts Root:** `./test/counts/512/Breast_cancer`
-  
+* **Normalized True Expression:** 'scaled_y.npz'
    The directory contains .npz files for each spot, where the count key stores the raw expression values.
 * **Gene Filter:** Set to `250`, meaning the model predicts the expression for the top 250 genes with the highest mean expression.
 * **Trained Model:** The model weights are provided in ```model/epoch_11_model_state_dict.pth```. This model was trained on the 22 training patients as described in the original paper.
@@ -47,7 +47,6 @@ The `./precomputed_stats/` folder contains files generated from the full trainin
 
 * `gene.pkl`: A list of the gene names.
 * `mean_expression.npy`: The corresponding mean gene expression values.
-    * `gene.pkl` and `mean_expression.npy` are used to select the top 250 target genes.
 * `image_stats.csv`: Contains the mean and standard deviation for each color channel (RGB) of the image patches. These values are used for image normalization.
 
 ---
