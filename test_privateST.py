@@ -165,7 +165,7 @@ def convert_pytorch_keys_to_orion(state_dict):
 
 orion_state = convert_pytorch_keys_to_orion(state_dict)
 he_model = ResNet18(dataset='brstnet')
-he_model.load_state_dict(orion_state, strict=False)
+he_model.load_state_dict(orion_state) # , strict=False
 he_model.eval()
 
 print("Orion model loaded.")
@@ -361,8 +361,8 @@ class Spatial_train(torch.utils.data.Dataset):
         if self.transform is not None:
             X = self.transform(X)
         # Bilinear interpolation
-        if X.shape[1] != self.resolution:
-            X = torchvision.transforms.Resize((self.resolution, self.resolution))(X)
+        #if X.shape[1] != self.resolution:
+        #    X = torchvision.transforms.Resize((self.resolution, self.resolution))(X)
             #print('Resized to 64x64')
         coord = torch.as_tensor(coord)
         index = torch.as_tensor([index])
