@@ -14,7 +14,7 @@ from scipy.stats import pearsonr
 TRUE_NPZ_PATH = 'scaled_y.npz'
 
 # [Matching CSV] Predictions must be sorted in the order of this file
-NAMES_CSV_PATH = 'sample_names.csv'
+NAMES_CSV_PATH = 'samples.csv'
 
 # [Prediction Directory]
 PRED_DIR = "results/"
