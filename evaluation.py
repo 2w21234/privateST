@@ -155,7 +155,7 @@ def main():
         print(f"{'Metric':<45} | {'Value':<10}")
         print("-" * 85)
         print(f"{'Mean PCC (Top 4% - 10 Genes)':<45} | {avg_pcc_10:.6f}")
-        print(f"{'Mean PCC (Top 40% - 100 Genes)':<45} | {avg_pcc_100:.6f}")
+        print(f"{'Mean PCC (Top 40% - Targeted 100 Genes)':<45} | {avg_pcc_100:.6f}")
         print(f"{'Mean PCC (All - 250 Genes)':<45} | {avg_pcc_250:.6f}")
         print("="*85 + "\n")
 
