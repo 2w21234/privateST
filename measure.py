@@ -129,5 +129,4 @@ def run_evaluation():
     print("="*50)
 
 if __name__ == "__main__":
-    run_evaluation()
-~                       
+    run_evaluation()                      
