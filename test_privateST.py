@@ -547,7 +547,7 @@ for i, sample in enumerate(test_loader):
     he_model.eval()
     out_clear = he_model(sample_input).detach().cpu().numpy()
     np.save(filename_clear, out_clear)
-    print(f"[CLEAR] Saved: {filename_clear}")
+    print(f"[Approx] Saved: {filename_clear}")
 
 if args.approx_only:
     print("\n" + "="*50)
@@ -595,7 +595,7 @@ for i, sample in enumerate(test_loader):
     out_fhe = out_ctxt.decrypt().decode()
     out_fhe = np.array(out_fhe)
     np.save(filename_fhe, out_fhe)
-    print(f"[FHE] Saved: {filename_fhe}")
+    print(f"[HE] Saved: {filename_fhe}")
 
     del vec_ctxt, vec_ptxt, out_ctxt, out_fhe
     gc.collect()
