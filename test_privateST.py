@@ -56,7 +56,7 @@ torch.use_deterministic_algorithms(True)
 torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
 
-model_ckpt         = "./model/epoch_11_model_state_dict.pth"
+model_ckpt         = "epoch_15_model_state_dict.pth"
 train_count_root    = "./training/counts/512/Breast_cancer"
 train_img_root      = "./training/images/512/Breast_cancer"
 
