@@ -180,14 +180,13 @@ class Spatial(torch.utils.data.Dataset):
                  patient=None,
                  count_root=None,
                  img_root=None,
-                 resolution=64,  # resolution 인자 추가
-                 gene_filter=250, # gene_filter 기본값 수정 (변수 사용시 주의)
+                 resolution=64,  #
+                 gene_filter=250, #
                  aux_ratio=0,
                  transform=None,
                  normalization=None,
                  gene_info_root=None):
         
-        # 데이터셋 경로 로드
         self.dataset = glob.glob(os.path.join(count_root, "*", "*.npz"))
 
         if patient is not None:
@@ -240,28 +239,19 @@ class Spatial(torch.utils.data.Dataset):
         section = npz["section"][0]
         coord = npz["index"]
 
-        # [수정됨] .jpg 이미지 경로 생성 (패딩 제거: 0010 -> 10)
-        # 예: input_tensor_... 대신 C1_10_17.jpg 형식으로 변경
         img_filename = f"{section}_{coord[0]}_{coord[1]}.jpg"
         
-        # 경로 결합: img_root/patient/filename
-        # (img_root 설정에 따라 patient 폴더가 포함되어 있는지 확인 필요)
         img_path = os.path.join(self.img_root, patient, img_filename)
 
-        # 이미지 로드 (PIL 사용)
         try:
             X = Image.open(img_path).convert("RGB")
         except FileNotFoundError:
-            # 혹시 경로가 틀렸을 경우 디버깅용 (필요시 주석 처리)
-            # print(f"File not found: {img_path}, trying without patient folder...")
             img_path_alt = os.path.join(self.img_root, img_filename)
             X = Image.open(img_path_alt).convert("RGB")
 
-        # Transform 적용
         if self.transform is not None:
             X = self.transform(X)
 
-        # Resize 적용 (Spatial_train과 동일하게 맞춤)
         if X.shape[1] != self.resolution:
             X = torchvision.transforms.Resize((self.resolution, self.resolution))(X)
 
@@ -282,105 +272,6 @@ class Spatial(torch.utils.data.Dataset):
             return X, y, aux, coord, index, patient, section, pixel
         else:
             return X, y, coord, index, patient, section, pixel
-
-class Spatial_1(torch.utils.data.Dataset):
-    def __init__(self,
-                 patient=None,
-                 count_root=None,
-                 img_root=None,
-                 gene_filter=gene_filter,
-                 aux_ratio=0,
-                 transform=None,
-                 normalization=None,
-                 gene_info_root=None):
-        self.dataset=glob.glob(os.path.join(count_root, "*", "*.npz"))
-
-
-        if patient is not None:
-            self.dataset = [d for d in self.dataset if ((d.split("/")[-2] in patient) or ((d.split("/")[-2], d.split("/")[-1].split("_")[0]) in patient))]
-
-        self.transform = transform
-        self.count_root = count_root
-        self.img_root = img_root
-        self.gene_filter = gene_filter
-        self.aux_ratio = aux_ratio
-        self.normalization = normalization
-        self.count_root = count_root
-        subtype_files = [os.path.join(self.count_root, "subtype.pkl"), os.path.join(self.count_root, "subtype.pkl")]
-        self.subtype = {}
-        self.gene_info_root = gene_info_root
-        for file in subtype_files:
-            try:
-                with open(file, "rb") as f:
-                    self.subtype.update(pickle.load(f))
-            except FileNotFoundError:
-                print(f"⚠ Warning: {file} not found.")
-
-        print(f"✅ Loaded {len(self.subtype)} subtype entries.")
-
-        gene_pkl_path = os.path.join(self.gene_info_root, "gene.pkl")
-        mean_expression_path = os.path.join(self.gene_info_root, "mean_expression.npy")
-
-        print('gene_pkl_path : ',gene_pkl_path)
-        print('mean_expression_path :',mean_expression_path)
-        with open(gene_pkl_path, "rb") as f:
-            self.ensg_names = pickle.load(f)
-        self.mean_expression = np.load(mean_expression_path)
-
-        self.gene_names = list(map(lambda x: ensembl.symbol[x], self.ensg_names))
-
-        keep_gene = set(list(zip(*sorted(zip(self.mean_expression, range(self.mean_expression.shape[0])))[::-1][:self.gene_filter]))[1])
-
-        self.keep_bool = np.array([i in keep_gene for i in range(len(self.gene_names))])
-
-        self.ensg_keep = [n for (n, f) in zip(self.ensg_names, self.keep_bool) if f]
-        self.gene_keep = [n for (n, f) in zip(self.gene_names, self.keep_bool) if f]
-
-        if self.aux_ratio != 0:
-            self.aux_nums = int((len(self.gene_names) - self.gene_filter) * self.aux_ratio)
-            aux_gene = set(list(zip(*sorted(zip(self.mean_expression, range(self.mean_expression.shape[0])))[::-1][self.gene_filter:self.gene_filter + self.aux_nums]))[1])
-            self.aux_bool = np.array([i in aux_gene for i in range(len(self.gene_names))])
-            self.ensg_aux = [n for (n, f) in zip(self.ensg_names, self.aux_bool) if f]
-            self.gene_aux = [n for (n, f) in zip(self.gene_names, self.aux_bool) if f]
-
-    def __len__(self):
-        return len(self.dataset)
-
-    def __getitem__(self, index):
-        npz = np.load(self.dataset[index])
-        count = npz["count"]
-        pixel = npz["pixel"]
-        patient = npz["patient"][0]
-        section = npz["section"][0]
-        coord = npz["index"]
-        pt_filename = f"input_tensor_{section}_{coord[0]:04d}_{coord[1]:04d}.pt"
-        pt_path = os.path.join(self.img_root, pt_filename)
-        if not os.path.exists(pt_path):
-            raise FileNotFoundError(f"No PT file: {pt_path}")
-        X = torch.load(pt_path)
-        coord = torch.as_tensor(coord)
-        index = torch.as_tensor([index])
-
-        keep_count = count[self.keep_bool]
-        y = torch.as_tensor(keep_count, dtype=torch.float)
-        y = torch.log(1 + y)
-
-        if self.normalization is not None:
-            y = (y - self.normalization[0]) / self.normalization[1]
-
-        if self.aux_ratio != 0:
-            aux_count = count[self.aux_bool]
-            aux = torch.as_tensor(aux_count, dtype=torch.float)
-            aux = torch.log(1 + aux)
-
-            return X, y, aux, coord, index, patient, section, pixel
-        else:
-            return X, y, coord, index, patient, section, pixel
-
-
-
-
-
 
 
 
@@ -495,7 +386,6 @@ class Spatial_train(torch.utils.data.Dataset):
             return X, y, aux, coord, index, patient, section, pixel, genes_bool, genes, ensg
         else:
             return X, y, coord, index, patient, section, pixel, genes_bool, genes, ensg
-
 
 
 # ───── DataLoader ─────
@@ -621,8 +511,6 @@ os.makedirs(save_dir, exist_ok=True)
 npz_list = [f for f in os.listdir(test_count_root_1) if f.endswith(".npz")]
 
 
-
-
 start = time.time()
 # Orion cheme initialization
 print("===== 1) Pytorch & orion (clear mode) inference starts =====")
@@ -634,7 +522,7 @@ orion.fit(he_model, train_loader)
 he_model.eval()
 model.eval()
 
-# Orion clear mode inference (기존 390번 라인 부근)
+# Orion clear mode inference 
 for i, sample in enumerate(test_loader):
     if len(sample) == 8:
         X, y, aux, coord, index, patient, section, pixel = sample
@@ -643,12 +531,10 @@ for i, sample in enumerate(test_loader):
 
     sample_input = X
 
-    # 수정: pixel 대신 coord(그리드 인덱스) 사용
     grid_idx = coord.squeeze().tolist()
     gx, gy = grid_idx
     section_name = section[0]
 
-    # 결과파일명 형식 변경: 예) results/C1_14_34.npy
     filename_clear = f"{save_dir}/{section_name}_{gx}_{gy}.npy"
 
     if os.path.exists(filename_clear):
@@ -671,6 +557,7 @@ if args.approx_only:
 
 ################################################################################################################################################
 
+
 sample_times = []
 total_start_time = time.perf_counter()
 
@@ -679,7 +566,7 @@ input_level = orion.compile(he_model)
 
 print("===== 3) Orion (FHE) model compiling finished and fhe inference starts =====")
 he_model.he()
-# Orion FHE inference (기존 430번 라인 부근)
+# Orion FHE inference 
 for i, sample in enumerate(test_loader):
     if len(sample) == 8:
         X, y, aux, coord, index, patient, section, pixel = sample
@@ -688,12 +575,10 @@ for i, sample in enumerate(test_loader):
 
     sample_input = X
 
-    # 수정: pixel 대신 coord(그리드 인덱스) 사용
     grid_idx = coord.squeeze().tolist()
     gx, gy = grid_idx
     section_name = section[0]
 
-    # FHE 결과파일명 형식 변경: 예) results/HE_C1_14_34.npy
     filename_fhe = f"{save_dir}/HE_{section_name}_{gx}_{gy}.npy"
 
     vec_ptxt = orion.encode(sample_input, input_level)
