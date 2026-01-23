@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 import gc
 import os
 import sys
@@ -180,13 +179,13 @@ class Spatial(torch.utils.data.Dataset):
                  patient=None,
                  count_root=None,
                  img_root=None,
-                 resolution=64,  #
-                 gene_filter=250, #
+                 resolution=64, 
+                 gene_filter=250, 
                  aux_ratio=0,
                  transform=None,
                  normalization=None,
                  gene_info_root=None):
-        
+
         self.dataset = glob.glob(os.path.join(count_root, "*", "*.npz"))
 
         if patient is not None:
@@ -195,19 +194,18 @@ class Spatial(torch.utils.data.Dataset):
         self.transform = transform
         self.count_root = count_root
         self.img_root = img_root
-        self.resolution = resolution  # 해상도 저장
+        self.resolution = resolution  
         self.gene_filter = gene_filter
         self.aux_ratio = aux_ratio
         self.normalization = normalization
         self.gene_info_root = gene_info_root
 
-        # 유전자 정보 로드
         gene_pkl_path = os.path.join(self.gene_info_root, "gene.pkl")
         mean_expression_path = os.path.join(self.gene_info_root, "mean_expression.npy")
 
         print('gene_pkl_path : ', gene_pkl_path)
         print('mean_expression_path :', mean_expression_path)
-        
+
         with open(gene_pkl_path, "rb") as f:
             self.ensg_names = pickle.load(f)
         self.mean_expression = np.load(mean_expression_path)
@@ -240,12 +238,14 @@ class Spatial(torch.utils.data.Dataset):
         coord = npz["index"]
 
         img_filename = f"{section}_{coord[0]}_{coord[1]}.jpg"
-        
+
         img_path = os.path.join(self.img_root, patient, img_filename)
 
         try:
             X = Image.open(img_path).convert("RGB")
         except FileNotFoundError:
+            # 혹시 경로가 틀렸을 경우 디버깅용 (필요시 주석 처리)
+            # print(f"File not found: {img_path}, trying without patient folder...")
             img_path_alt = os.path.join(self.img_root, img_filename)
             X = Image.open(img_path_alt).convert("RGB")
 
@@ -272,8 +272,6 @@ class Spatial(torch.utils.data.Dataset):
             return X, y, aux, coord, index, patient, section, pixel
         else:
             return X, y, coord, index, patient, section, pixel
-
-
 
 class Spatial_train(torch.utils.data.Dataset):
     def __init__(self,
@@ -386,6 +384,7 @@ class Spatial_train(torch.utils.data.Dataset):
             return X, y, aux, coord, index, patient, section, pixel, genes_bool, genes, ensg
         else:
             return X, y, coord, index, patient, section, pixel, genes_bool, genes, ensg
+
 
 
 # ───── DataLoader ─────
@@ -511,6 +510,8 @@ os.makedirs(save_dir, exist_ok=True)
 npz_list = [f for f in os.listdir(test_count_root_1) if f.endswith(".npz")]
 
 
+
+
 start = time.time()
 # Orion cheme initialization
 print("===== 1) Pytorch & orion (clear mode) inference starts =====")
@@ -521,8 +522,7 @@ orion.fit(he_model, train_loader)
 
 he_model.eval()
 model.eval()
-
-# Orion clear mode inference 
+# Orion Approx inference
 for i, sample in enumerate(test_loader):
     if len(sample) == 8:
         X, y, aux, coord, index, patient, section, pixel = sample
@@ -531,11 +531,13 @@ for i, sample in enumerate(test_loader):
 
     sample_input = X
 
+    # 수정: pixel 대신 coord(그리드 인덱스) 사용
     grid_idx = coord.squeeze().tolist()
     gx, gy = grid_idx
     section_name = section[0]
 
-    filename_clear = f"{save_dir}/{section_name}_{gx}_{gy}.npy"
+    # 결과파일명 형식 변경: 예) results/C1_14_34.npy
+    filename_clear = f"{save_dir}/Approx_{section_name}_{gx}_{gy}.npy"
 
     if os.path.exists(filename_clear):
         print(f"The file already exists : {filename_clear} → pass")
@@ -557,7 +559,6 @@ if args.approx_only:
 
 ################################################################################################################################################
 
-
 sample_times = []
 total_start_time = time.perf_counter()
 
@@ -566,7 +567,7 @@ input_level = orion.compile(he_model)
 
 print("===== 3) Orion (FHE) model compiling finished and fhe inference starts =====")
 he_model.he()
-# Orion FHE inference 
+# Orion FHE inference
 for i, sample in enumerate(test_loader):
     if len(sample) == 8:
         X, y, aux, coord, index, patient, section, pixel = sample
@@ -607,4 +608,3 @@ print("="*50)
 print(f"Number of samples : {len(sample_times)}")
 print('Inference times :', sample_times)
 print("="*50)
-                      
