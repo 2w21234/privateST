@@ -29,16 +29,16 @@ This project was developed and tested with the specific library versions listed 
 
 The dataset provided here is a scaled-down version of the breast cancer spatial transcriptomics dataset.Test Set: The test set is identical to the one used for evaluation in the associated research paper.Test Images: Located in ./test/images/64. The original 512x512x3 pixel images were resized to 64x64x3 using bilinear interpolation. The test set is identical to the one evaluated in the associated research paper and consists of 529 samples in total.
 
-* **Training Counts Root:** `./training/counts/512/Breast_cancer`
-* **Training Images Root:** `./training/images/512/Breast_cancer`
-* **Test Images Root:** `./test/images/64`
+* **Training Counts Root:** `./training/counts/224/Breast_cancer`
+* **Training Images Root:** `./training/images/224/Breast_cancer`
+* **Test Images Root:** `./test/images/224`
 * **Test Patients CSV:** `./test/test_patients.csv`
-* **Test Counts Root:** `./test/counts/512/Breast_cancer`
+* **Test Counts Root:** `./test/counts/224/Breast_cancer`
 
    The directory contains .npz files for each spot, where the count key stores the raw expression values.
 * **Normalized True Expression:** `scaled_y.npz`
 * **Gene Filter:** Set to `250`, meaning the model predicts the expression for the top 250 genes with the highest mean expression.
-* **Trained Model:** The model weights are provided in ```model/epoch_11_model_state_dict.pth```. This model was trained on the 22 training patients as described in the original paper.
+* **Trained Model:** The model weights are provided in ```model/epoch_15_model_state_dict.pth```. This model was trained on the 22 training patients as described in the original paper.
 
 ---
 
