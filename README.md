@@ -83,7 +83,7 @@ If your system does not meet the 512GB RAM requirement, you **must** use the `--
       # Run ONLY the ResNet_Approx mode and skip FHE inference
       python test_privateST.py --approx_only
     
-    
+    https://github.com/2w21234/privateST/blob/main/README.md
 --approx_only: The script will exit after saving the .npy files for the ResNet_Approx mode, skipping the time-consuming FHE compilation and encrypted inference.
 
 ### Full Inference (ResNet_Approx + ResNet_HE(privateST))
@@ -100,14 +100,14 @@ Running ```test_privateST.py``` creates a ```./results/``` folder where the foll
 
 PyTorch model inference: The output from inference using the standard PyTorch model.
 
-Orion (clear version): The output when calculated in the polynomial space without actual encryption.
+Orion (Approx version): The output when calculated in the polynomial space without actual encryption. (Files are prefixed with Approx_)
 
-Orion (FHE version): The final inference results on the actually encrypted data.
+Orion (HE version): The final inference results on the actually encrypted data. (Files are prefixed with HE_)
 
 ---
 
 
-### 5. Evaluation
+## 5. Evaluation
 To evaluate the performance of the inference results, run the measure.py script.
 
 
@@ -128,7 +128,7 @@ Average RMSE: Root Mean Square Error
 ---
 
 
-## 5. Implementation Notes
+## 6. Implementation Notes
 
 ### Orion Compatibility
 
