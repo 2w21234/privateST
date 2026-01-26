@@ -106,6 +106,28 @@ Orion (FHE version): The final inference results on the actually encrypted data.
 
 ---
 
+
+### 5. Evaluation
+To evaluate the performance of the inference results, run the measure.py script.
+
+
+```python measure.py```
+
+
+Functionality: This script processes the result files saved in the ```./results/``` directory.
+
+Metrics: It calculates the following performance metrics to compare the predicted expression levels with the ground truth:
+
+Average PCC: Pearson Correlation Coefficient
+
+Average SCC: Spearman Correlation Coefficient
+
+Average RMSE: Root Mean Square Error
+
+
+---
+
+
 ## 5. Implementation Notes
 
 ### Orion Compatibility
