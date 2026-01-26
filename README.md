@@ -83,7 +83,6 @@ If your system does not meet the 512GB RAM requirement, you **must** use the `--
       # Run ONLY the ResNet_Approx mode and skip FHE inference
       python test_privateST.py --approx_only
     
-    https://github.com/2w21234/privateST/blob/main/README.md
 --approx_only: The script will exit after saving the .npy files for the ResNet_Approx mode, skipping the time-consuming FHE compilation and encrypted inference.
 
 ### Full Inference (ResNet_Approx + ResNet_HE(privateST))
@@ -147,7 +146,7 @@ Instead of using the standard torchvision initialization, use the provided funct
 # Import the custom initialization function from the project script
 from test_privateST import custom_resnet18
 
-# Initialize the model for your specific task (e.g., 250 gene prediction)
+# Initialize the model for your specific task 
 model = custom_resnet18(num_classes=250)
 
 # The function automatically configures:
