@@ -42,7 +42,7 @@ The dataset provided here is a scaled-down version of the breast cancer spatial 
   
    epoch_15.npz contains both the Normalized True Expression and Predicted Values.
    The predictions were generated using a model architecture with Max Pooling for downsampling and Standard ReLU activation (actual ReLU, not a polynomial approximation).
-* **Trained Model:** The model weights are provided in ```model/epoch_15_model_state_dict.pth```. This model was trained on the 22 training patients as described in the original paper.
+* **Trained Model:** The model weights for ResNet(224,64)_250 are provided in ```model/epoch_15_model_state_dict.pth``. This model was trained on the 22 training patients as described in the original paper.
 
 ---
 
@@ -101,9 +101,9 @@ Running ```test_privateST.py``` creates a ```./results/``` folder where the foll
 
 PyTorch model inference: The output from inference using the standard PyTorch model.
 
-Orion (Approx version): The output when calculated in the polynomial space without actual encryption. (Files are prefixed with Approx_)
+Orion (Approx version, ```Approx(224,64)_250```) : The output when calculated in the polynomial space without actual encryption. (Files are prefixed with Approx_)
 
-Orion (HE version): The final inference results on the actually encrypted data. (Files are prefixed with HE_)
+Orion (HE version, ```HE(224,64)_250```) : The final inference results on the actually encrypted data. (Files are prefixed with HE_)
 
 ---
 
