@@ -3,8 +3,8 @@
 This repository provides the code to perform privacy-preserving inference on a pre-trained ResNet18 model using homomorphic encryption. The ResNet18 model with avgerage Pooling is trained  to predict spatial transcriptomics data from histopathology images. The goal is to demonstrate a workflow where sensitive patient data (histopathology images) can be processed on an external server without exposing the raw information.
 
 The trained model (`model/epoch_11_model_state_dict.pth`) is loaded, and inference is run on encrypted data using the **Orion** framework.
+[Figure1_new.tif](https://github.com/user-attachments/files/24851559/Figure1_new.tif)
 
-<img width="1017" height="402" alt="image" src="https://github.com/user-attachments/assets/e073a0fa-9771-41f2-b8f3-29fab501639a" />
 
 ## 0. Dependencies
 
