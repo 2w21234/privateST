@@ -5,7 +5,7 @@ This repository provides the code to perform privacy-preserving inference on a p
 The trained model (`model/epoch_11_model_state_dict.pth`) is loaded, and inference is run on encrypted data using the **Orion** framework.
 
 <img width="2457" height="2268" alt="image" src="https://github.com/user-attachments/assets/50cb3c10-2300-45c9-af2e-b0450fe8a733" />
-![Uploading image.png…]()
+<img width="2032" height="850" alt="image" src="https://github.com/user-attachments/assets/2c1075f0-d3a1-4fea-8069-c3f923a6141b" />
 
 
 ## 0. Dependencies
