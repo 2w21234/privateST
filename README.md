@@ -33,7 +33,7 @@ The dataset provided here is a scaled-down version of the breast cancer spatial 
 
 * **Training Counts Root:** `./training/counts/224/Breast_cancer`
 * **Training Images Root:** `./training/images/224/Breast_cancer`
-* **Test Images Root:** `./test/images/224`
+* **Test Images Root:** `./test/images/224/Breast_cancer`
 * **Test Patients CSV:** `./test/test_patients.csv`
 * **Test Counts Root:** `./test/counts/224/Breast_cancer`
 
