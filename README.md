@@ -1,4 +1,4 @@
-# privateST: Privacy-Preserving Deep Learning Inference for Spatial Transcriptomics
+# PRIVATEST: A FEASIBLE FRAMEWORK FOR PRIVACY-PRESERVING SPATIAL TRANSCRIPTOMICS PREDICTION FROM HISTOPATHOLOGY IMAGES 
 
 This repository provides the code to perform privacy-preserving inference on a pre-trained ResNet18 model using homomorphic encryption. The ResNet18 model with avgerage Pooling is trained  to predict spatial transcriptomics data from histopathology images. The goal is to demonstrate a workflow where sensitive patient data (histopathology images) can be processed on an external server without exposing the raw information.
 
