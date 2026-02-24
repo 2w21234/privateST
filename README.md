@@ -52,7 +52,7 @@ The `./model/precomputed_stats/` folder contains precomputed files generated fro
 
 * `gene.pkl`: A list of the gene names.
 * `mean_expression.npy`: The corresponding mean gene expression values.
-* `image_stats.csv`: Contains the mean and standard deviation for each color channel (RGB) of the image patches. These values are used for image normalization.
+* `image_gene_stats.csv`: Contains the mean and standard deviation for each color channel (RGB) of the image patches. These values are used for image normalization.
 
 ---
 
