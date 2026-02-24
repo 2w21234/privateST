@@ -21,8 +21,6 @@ This project was developed and tested with the specific library versions listed 
 
 * **PyTorch**: 2.5.1
 
-* **Torchvision**: A version compatible with PyTorch
-
 
 ---
 
