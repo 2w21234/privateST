@@ -42,7 +42,7 @@ The dataset provided here is a scaled-down version of the breast cancer spatial 
   
    epoch_15.npz contains  the Normalized True Expression and Predicted Values.
    The predictions were generated using a model architecture with Average Pooling for downsampling and Standard ReLU activation (actual ReLU, not a polynomial approximation) in an unencrypted state.
-* **Trained Model:** The model weights for ResNet(224,64)_250 are provided in ```model/epoch_15_model_state_dict.pth``. This model was trained on the 22 training patients as described in the paper.
+* **Trained Model:** The model weights for ResNet(224,64)_250 are provided in ```model/epoch_15_model_state_dict.pth```. This model was trained on the 22 training patients as described in the paper.
 
 ---
 
