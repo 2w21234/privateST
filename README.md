@@ -40,15 +40,15 @@ The dataset provided here is a scaled-down version of the breast cancer spatial 
    The directory contains .npz files for each spot, where the count key stores the raw expression values.
 * **Normalized True Expression:** `epoch_15.npz`
   
-   epoch_15.npz contains both the Normalized True Expression and Predicted Values.
-   The predictions were generated using a model architecture with Max Pooling for downsampling and Standard ReLU activation (actual ReLU, not a polynomial approximation).
-* **Trained Model:** The model weights for ResNet(224,64)_250 are provided in ```model/epoch_15_model_state_dict.pth``. This model was trained on the 22 training patients as described in the original paper.
+   epoch_15.npz contains  the Normalized True Expression and Predicted Values.
+   The predictions were generated using a model architecture with Average Pooling for downsampling and Standard ReLU activation (actual ReLU, not a polynomial approximation) in an unencrypted state.
+* **Trained Model:** The model weights for ResNet(224,64)_250 are provided in ```model/epoch_15_model_state_dict.pth``. This model was trained on the 22 training patients as described in the paper.
 
 ---
 
 ## 2. Precomputed Statistics
 
-The `./model/precomputed_stats/` folder contains files generated from the full training set that are necessary for data preprocessing:
+The `./model/precomputed_stats/` folder contains precomputed files generated from the full training set that are necessary for data preprocessing:
 
 * `gene.pkl`: A list of the gene names.
 * `mean_expression.npy`: The corresponding mean gene expression values.
@@ -80,14 +80,14 @@ The full **FHE (Homomorphic Encryption)** inference process is extremely memory-
 * **RAM Requirement**: **Minimum 512GB RAM** is required for full FHE inference.
 * **Important Warning**: If you run the script **without** the `--approx_only` flag on a system with less than 512GB of RAM, the process will fail with a `MemoryError` or system crash.
   
-### Quick Verification (ResNet_Approx Only)
-If your system does not meet the 512GB RAM requirement, you **must** use the `--approx_only` flag to run only the ResNet_Approx mode.
+### Quick Verification (Approx Only)
+If your system does not meet the 512GB RAM requirement, you **must** use the `--approx_only` flag to run only the Approx mode.
 
     
-      # Run ONLY the ResNet_Approx mode and skip FHE inference
+      # Run ONLY the Approx mode and skip FHE inference
       python test_privateST.py --approx_only
     
---approx_only: The script will exit after saving the .npy files for the ResNet_Approx mode, skipping the time-consuming FHE compilation and encrypted inference.
+--approx_only: The script will exit after saving the .npy files for the Approx mode, skipping the time-consuming FHE compilation and encrypted inference.
 
 ### Full Inference (ResNet_Approx + ResNet_HE(privateST))
     
