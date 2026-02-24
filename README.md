@@ -48,7 +48,7 @@ The dataset provided here is a scaled-down version of the breast cancer spatial 
 
 ## 2. Precomputed Statistics
 
-The `./precomputed_stats/` folder contains files generated from the full training set that are necessary for data preprocessing:
+The `./model/precomputed_stats/` folder contains files generated from the full training set that are necessary for data preprocessing:
 
 * `gene.pkl`: A list of the gene names.
 * `mean_expression.npy`: The corresponding mean gene expression values.
