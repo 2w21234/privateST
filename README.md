@@ -63,6 +63,8 @@ Follow these steps to set up the environment and run the inference script.
 **Installation Steps:**
 1.  Create and activate the Conda environment using the provided file:
     ```
+    git clone https://github.com/2w21234/privateST.git
+    cd privateST
     conda env create -f environment.yml
     conda activate privateST
     ```
