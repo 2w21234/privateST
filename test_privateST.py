@@ -515,7 +515,7 @@ npz_list = [f for f in os.listdir(test_count_root_1) if f.endswith(".npz")]
 start = time.time()
 # Orion cheme initialization
 print("===== 1) Pytorch & orion (clear mode) inference starts =====")
-scheme = orion.init_scheme("/home/2w21234/privateST/orion/configs/resnet.yml")
+scheme = orion.init_scheme("orion/configs/resnet.yml")
 
 orion.fit(he_model, train_loader)
 
